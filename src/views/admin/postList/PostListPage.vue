@@ -1,28 +1,27 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
-import { getPostsHttp } from './actions/GetPosts'
-import { _debounce } from '../../helper/util'
+import { getPostsHttp, GetPostsResponseType } from './actions/GetPosts'
+import { openModal, _debounce, closeModal } from '../../../helper/util'
 import { Bootstrap4Pagination } from 'laravel-vue-pagination'
-import { confirmDeletion } from '../../helper/SweetAlert'
+import { confirmDeletion } from '../../../helper/SweetAlert'
 import { DeletePostsHttp } from './actions/DeletePost'
-import { successMsg } from '../../helper/Toastnotifcation'
+import { successMsg } from '../../../helper/Toastnotifcation'
+import PostTable from './components/PostTable.vue'
+import UploadImageModal from './components/UploadImageModal.vue'
 
-const posts = ref()
-
-// paagination and search params
+const posts = ref<GetPostsResponseType>()
 const query = ref<string>('')
 const loadingStatus = ref(false)
+const currentPostId = ref<number>(0)
 
-const showPosts = async (page = 1, query) => {
+async function showPosts(page = 1, query = '') {
   const data = await getPostsHttp(page, query)
+  console.log(data)
   posts.value = data
 }
 
-onMounted(async () => {
-  await showPosts(1, query.value)
-})
-
+// to prevent multiple api calls on keydown
 const search = _debounce(async function () {
   showPosts(1, query.value)
 }, 500)
@@ -38,8 +37,16 @@ async function removePost(id: number) {
       console.log('cancel deletion')
     })
 }
-</script>
 
+const showModal = (postId: number) => {
+  currentPostId.value = postId
+  openModal(currentPostId, 'postModal')
+}
+
+onMounted(async () => {
+  await showPosts()
+})
+</script>
 <template>
   <div class="col-md-2"></div>
   <div class="col-md-8">
@@ -73,55 +80,15 @@ async function removePost(id: number) {
             </select>
           </div>
         </div>
-
-        <table class="table table-striped table-bordered table-hover">
-          <thead>
-            <tr>
-              <td>ID</td>
-              <td>Image</td>
-              <td>Post title</td>
-              <td>Post content</td>
-              <td>Upload</td>
-
-              <td>Update</td>
-              <td>Delete</td>
-            </tr>
-          </thead>
-
-          <tbody v-for="post in posts?.data" :key="post.id">
-            <tr>
-              <td>{{ post.id }}</td>
-              <td>
-                <img :src="post.image" style="height: 55px; height: 55px" alt="image" />
-              </td>
-
-              <td>{{ post.title }}</td>
-              <td>{{ post.post_content }}</td>
-              <td>
-                <button class="btn btn-outline-secondary btn-sm" @click="showModal(post.id)">
-                  Upload-image
-                </button>
-              </td>
-
-              <td><button class="btn btn-outline-primary btn-sm">Update</button></td>
-              <td>
-                <button class="btn btn-outline-danger btn-sm" @click="removePost(post.id)">
-                  Delete
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <Bootstrap4Pagination
-          class="d-flex justify-content-center"
-          :data="{
-            current_page: posts?.current_page,
-            last_page: posts?.last_page,
-            to: posts?.to,
-            total: posts?.total
-          }"
-          @pagination-change-page="showPosts"
+        <UploadImageModal
+          :postId="currentPostId"
+          @refreshTable="showPosts"
+          @closeModal="closeModal('postModal')"
         />
+        <PostTable :posts="posts" @removePost="removePost" @showModal="showModal" />
+        <div v-if="posts">
+          <Bootstrap4Pagination :data="posts" @pagination-change-page="showPost" />
+        </div>
       </div>
     </div>
   </div>

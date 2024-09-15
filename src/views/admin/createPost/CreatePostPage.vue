@@ -4,11 +4,11 @@ import { ref } from 'vue'
 import { reactive } from 'vue' // "from '@vue/composition-api'" if you are using Vue <2.7
 import { useVuelidate } from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
-import Error from '../../components/Error.vue'
-import type { ICreatePostInput } from './admin-types'
+import Error from '../../../components/Error.vue'
+import type { ICreatePostInput } from './types/createPost.types'
 import { createPostHttp } from './actions/CreatePost'
-import { showError, successMsg } from '@/helper/Toastnotifcation'
-import BaseBtn from '@/components/BaseBtn.vue'
+import { showError, successMsg } from '../../../helper/Toastnotifcation'
+import BaseBtn from '../../../components/BaseBtn.vue'
 
 const postInput: ICreatePostInput = ref({
   title: '',

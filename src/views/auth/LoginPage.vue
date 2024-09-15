@@ -6,7 +6,7 @@ import { useVuelidate } from '@vuelidate/core'
 import { required, email } from '@vuelidate/validators'
 import Error from '../../components/Error.vue'
 import { loginUserHttp } from './actions/LoginUser'
-import BaseBtn from '@/components/BaseBtn.vue'
+import BaseBtn from '../../components/BaseBtn.vue'
 import { showError } from '@/helper/Toastnotifcation'
 
 const loginInput = ref({

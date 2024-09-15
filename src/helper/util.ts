@@ -34,20 +34,17 @@ export function closeModal(element: string) {
 }
 
 export function openModal(postId: number, element: string) {
-  return new Promise((resolve, reject) => {
-    // Open the Bootstrap modal using its API
+  return new Promise<number>((resolve, reject) => {
     var modal = document.getElementById(element) as HTMLElement
-
     if (modal) {
       // Add classes to initiate the modal show animation
-
-      // Wait for the next repaint and then add the 'in' class for the fade effect
       setTimeout(function () {
         modal.classList.add('fade', 'show')
         modal.style.display = 'block'
         modal.classList.add('in')
-      }, 500)
+      }, 100)
 
+      //console.log(postId)
       // Add class to the body for the modal backdrop
       document.body.classList.add('modal-open')
 
